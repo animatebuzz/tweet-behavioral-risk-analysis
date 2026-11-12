@@ -1,0 +1,6 @@
+# The dataset must remain byte-identical to the provided file.
+# Disable any line-ending conversion for the input data.
+data/** -text
+
+# Normalize everything else to LF.
+* text=auto eol=lf

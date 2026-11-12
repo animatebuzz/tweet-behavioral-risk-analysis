@@ -1,0 +1,51 @@
+{
+  "Comment": "Tweet behavioral risk classification: S3 PUT on raw/ -> Sample -> Classify -> results/",
+  "StartAt": "Sample",
+  "States": {
+    "Sample": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${REGION}:${ACCOUNT_ID}:function:tweet-classifier-sampler",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 1.5
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "RunFailed"
+        }
+      ],
+      "Next": "Classify"
+    },
+    "Classify": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${REGION}:${ACCOUNT_ID}:function:tweet-classifier-classify",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 3,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "RunFailed"
+        }
+      ],
+      "End": true
+    },
+    "RunFailed": {
+      "Type": "Fail",
+      "Error": "RunFailed",
+      "Cause": "Pipeline failed before results were written (see execution history)"
+    }
+  }
+}

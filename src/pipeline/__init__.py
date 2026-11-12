@@ -1,0 +1,1 @@
+"""Pipeline package: sampling, rate-limited classification, validation."""
